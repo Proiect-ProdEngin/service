@@ -32,7 +32,7 @@ class HelloWorldServiceTest {
 
         // Assert
         Assertions.assertEquals(1, greeting.getId());
-        Assertions.assertEquals("Hello, John!", greeting.getContent());
+        Assertions.assertEquals("Salut, John!", greeting.getContent());
     }
 
     @Test
@@ -44,7 +44,7 @@ class HelloWorldServiceTest {
 
         // Assert
         Assertions.assertEquals(1, greeting.getId());
-        Assertions.assertEquals("Hello, null!", greeting.getContent());
+        Assertions.assertEquals("Salut, null!", greeting.getContent());
     }
 
     @Test

@@ -31,4 +31,7 @@ public class HelloWorldService {
         }
         return new Greeting(counter.incrementAndGet(), String.format(informationTemplate, entity.title, entity.description));
     }
+    public void resetCounter(){
+        counter.set(0);
+    }
 }
