@@ -24,4 +24,5 @@ public class InformationEntity {
                 id, title, description);
     }
 
+    
 }
