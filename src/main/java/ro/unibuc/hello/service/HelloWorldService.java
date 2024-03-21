@@ -17,7 +17,7 @@ public class HelloWorldService {
     private InformationRepository informationRepository;
 
     private final AtomicLong counter = new AtomicLong();
-    private static final String helloTemplate = "Salut, %s!";
+    private static final String helloTemplate = "Hello, %s!";
     private static final String informationTemplate = "%s : %s!";
 
     public Greeting hello(String name) {
