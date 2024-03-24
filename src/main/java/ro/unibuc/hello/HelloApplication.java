@@ -4,17 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import ro.unibuc.hello.data.InformationEntity;
-import ro.unibuc.hello.data.InformationRepository;
+import ro.unibuc.hello.data.StudentRepository;
+import ro.unibuc.hello.data.StudentEntity;
 
 import javax.annotation.PostConstruct;
 
 @SpringBootApplication
-@EnableMongoRepositories(basePackageClasses = InformationRepository.class)
+@EnableMongoRepositories(basePackageClasses = StudentRepository.class)
 public class HelloApplication {
 
 	@Autowired
-	private InformationRepository informationRepository;
+	private StudentRepository studentRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(HelloApplication.class, args);
@@ -22,9 +22,15 @@ public class HelloApplication {
 
 	@PostConstruct
 	public void runAfterObjectCreated() {
-		informationRepository.deleteAll();
-		informationRepository.save(new InformationEntity("Overview",
-				"This is an example of using a data storage engine running separately from our applications server"));
-	}
+		System.out.println("PERFECT RUN!");
+		studentRepository.deleteAll();
 
+        StudentEntity firstData = new StudentEntity();
+        firstData.firstName = "Mihai";
+        firstData.lastName = "Corolevschi";
+        firstData.marks.put("Production Engineering", 10);
+        firstData.marks.put("Programare avansata pe Obiecte", 5);
+
+		studentRepository.save(firstData);
+	}
 }
