@@ -1,6 +1,8 @@
-package ro.unibuc.Source.Data.Entities;
+package ro.unibuc.hello.data;
 
 import java.sql.Date;
+
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 
@@ -11,7 +13,9 @@ public class ProfessorEntity {
     public String firstName;
     public String lastName;
 
-    public Date birthDate;
+    public Date birthday;
+
+    public List<String> classes;
 
     public ProfessorEntity() {}
 

@@ -6,10 +6,10 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Service",
+            "name": "StudentsCatalogApplication",
             "request": "launch",
-            "mainClass": "ro.unibuc.hello.HelloApplication",
-            "projectName": "hello"
-        }
+            "mainClass": "ro.unibuc.Source.StudentsCatalogApplication",
+            "projectName": "service"
+        },
     ]
 }

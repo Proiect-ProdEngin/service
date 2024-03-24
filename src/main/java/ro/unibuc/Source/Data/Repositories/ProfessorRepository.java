@@ -6,12 +6,12 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import ro.unibuc.Source.Data.Entities.ProfessorEntity;
+import ro.unibuc.hello.data.ProfessorEntity;
 
 @Repository
 public interface ProfessorRepository extends MongoRepository<ProfessorEntity, String> {
     List<ProfessorEntity> findByFirstName(String firstName);
     List<ProfessorEntity> findByLastName(String lastName);
 
-    List<ProfessorEntity> findByBirthday(Date birthDate);
+    List<ProfessorEntity> findByBirthday(Date birthday);
 }
