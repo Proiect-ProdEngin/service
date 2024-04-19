@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,12 @@ class HelloWorldServiceTestIT {
     private ProfessorService professorService;
     @Autowired
     private ProfessorRepository professorRepository;
+
+    @BeforeEach
+    public void resetDatabase() {
+        studentRepository.deleteAll();
+        professorRepository.deleteAll();
+    }
 
     @Test
     public void testStudentCreationAndGet() {
@@ -95,15 +102,11 @@ class HelloWorldServiceTestIT {
         professorRepository.save(professor);
 
         // Act
-        professor.firstName = "Anca TEST";
-        professor.lastName = "Dobrovat TEST";
-        professorService.updateProfessor(professor.id, professor);
-
         InformationDTO found = professorService.getProfessorByName(professor.firstName);
 
         // Assert
         assertNotNull(found);
-        assertEquals("Anca TEST Dobrovat TEST \n\n", found.getContent());
+        assertEquals("Andrei TEST Paunescu TEST \n\n", found.getContent());
     }
     @Test
     public void testProfessorCreationUpdateAndGet() {
@@ -114,11 +117,15 @@ class HelloWorldServiceTestIT {
         professorRepository.save(professor);
 
         // Act
+        professor.firstName = "Anca TEST";
+        professor.lastName = "Dobrovat TEST";
+        professorService.updateProfessor(professor.id, professor);
+
         InformationDTO found = professorService.getProfessorByName(professor.firstName);
 
         // Assert
         assertNotNull(found);
-        assertEquals("Andrei TEST Paunescu TEST \n\n", found.getContent());
+        assertEquals("Anca TEST Dobrovat TEST \n\n", found.getContent());
     }
     @Test
     public void testProfessorCreationAndDelete() {
