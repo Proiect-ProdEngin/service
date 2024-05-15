@@ -1,7 +1,6 @@
 services:
   hello:
-    image: hello-img
-    build: .
+    image: sebastianmst/hello-img:${IMAGE_TAG}
     ports:
       - 8080:8080
     environment:
@@ -17,12 +16,15 @@ services:
       - 50000:50000
     restart: on-failure
     volumes:
+      - /usr/libexec/docker/cli-plugins/docker-compose:/usr/libexec/docker/cli-plugins/docker-compose
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker
       - ./Dockerfile:/Dockerfile
     profiles:
       - "hello-service"
     user: 0:0
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   mongo:
     image: mongo:5.0.2
     restart: always

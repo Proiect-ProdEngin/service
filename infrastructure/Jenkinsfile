@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_PASSWORD = credentials("docker_password")
+        GITHUB_TOKEN = credentials("github_token")
     }
 
     stages {
@@ -13,12 +14,27 @@ pipeline {
         stage('Tag image') {
             steps {
                 script {
-                    GIT_TAG = sh([script: 'git fetch --tag && git tag', returnStdout: true]).trim()
-                    MAJOR_VERSION = sh([script: 'git tag | cut -d . -f 1', returnStdout: true]).trim()
-                    MINOR_VERSION = sh([script: 'git tag | cut -d . -f 2', returnStdout: true]).trim()
-                    PATCH_VERSION = sh([script: 'git tag | cut -d . -f 3', returnStdout: true]).trim()
+                    // Fetch tags and get the latest tag components
+                    def latestTag = sh(script: 'git fetch --tags && git tag | sort --version-sort | tail -n 1', returnStdout: true).trim()
+                    def versionParts = latestTag.tokenize('.')
+                    def majorVersion = versionParts[0]
+                    def minorVersion = versionParts[1].toInteger() + 1
+                    def patchVersion = versionParts[2]
+
+                    // Form the new image tag
+                    env.IMAGE_TAG = "${majorVersion}.${minorVersion}.${patchVersion}"
+
+                    // Tag the repository with the new image tag
+                    sh "git tag ${env.IMAGE_TAG}"
+                    sh "git push https://$GITHUB_TOKEN@github.com/<username>/service.git ${env.IMAGE_TAG}"
                 }
-                sh "docker build -t sebastianmst/hello-img:${MAJOR_VERSION}.\$((${MINOR_VERSION} + 1)).${PATCH_VERSION} ."
+            }
+        }
+        stage('Deploy') {
+            steps {
+                script {
+                    sh "export IMAGE_TAG=${env.IMAGE_TAG} && docker compose up -d hello mongo"
+                }
             }
         }
     }
