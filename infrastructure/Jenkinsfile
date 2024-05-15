@@ -1,41 +1,49 @@
 pipeline {
     agent any
+
     environment {
         DOCKER_PASSWORD = credentials("docker_password")
         GITHUB_TOKEN = credentials("github_token")
     }
 
     stages {
-        stage('Build & Test') {
+        stage('Build') {
             steps {
                 sh './gradlew clean build'
-            }
+            } 
         }
-        stage('Tag image') {
+
+        stage('Prepare & Tag Image') {
             steps {
                 script {
-                    // Fetch tags and get the latest tag components
-                    def latestTag = sh(script: 'git fetch --tags && git tag | sort --version-sort | tail -n 1', returnStdout: true).trim()
-                    def versionParts = latestTag.tokenize('.')
-                    def majorVersion = versionParts[0]
-                    def minorVersion = versionParts[1].toInteger() + 1
-                    def patchVersion = versionParts[2]
+                    script {
+                        sh([script: 'git fetch --tag', returnStdout: true]).trim()
+                        env.MAJOR_VERSION = sh([script: 'git tag | sort --version-sort | tail -1 | cut -d . -f 1', returnStdout: true]).trim()
+                        env.MINOR_VERSION = sh([script: 'git tag | sort --version-sort | tail -1 | cut -d . -f 2', returnStdout: true]).trim()
+                        env.PATCH_VERSION = sh([script: 'git tag | sort --version-sort | tail -1 | cut -d . -f 3', returnStdout: true]).trim()
+                        env.IMAGE_TAG = "${env.MAJOR_VERSION}.\$((${env.MINOR_VERSION} + 1)).${env.PATCH_VERSION}"
 
-                    // Form the new image tag
-                    env.IMAGE_TAG = "${majorVersion}.${minorVersion}.${patchVersion}"
+                    }
+                    sh "docker build -t sebastianmst/hello-img:${env.IMAGE_TAG} ."
 
-                    // Tag the repository with the new image tag
+                    withCredentials([usernamePassword(credentialsId: 'docker_password', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh """
+                            echo $PASSWORD | docker login docker.io -u $USERNAME --password-stdin
+                            docker push sebastianmst/hello-img:${env.IMAGE_TAG}
+                        """
+                    }
+
                     sh "git tag ${env.IMAGE_TAG}"
-                    sh "git push https://$GITHUB_TOKEN@github.com/<username>/service.git ${env.IMAGE_TAG}"
+                    sh "git push https://$GITHUB_TOKEN@github.com/Proiect-ProdEngin/service.git ${env.IMAGE_TAG}"
+                    sh "IMAGE_TAG=${env.IMAGE_TAG} docker compose -f docker-compose.jenkins.yml up -d hello mongo"
                 }
             }
         }
-        stage('Deploy') {
-            steps {
-                script {
-                    sh "export IMAGE_TAG=${env.IMAGE_TAG} && docker compose up -d hello mongo"
-                }
-            }
-        }
+
+        // stage('Test') {
+        //     steps{
+        //        sh './gradlew testE2E'
+        //     }
+        // }
     }
 }
