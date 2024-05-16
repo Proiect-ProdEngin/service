@@ -9,6 +9,8 @@ services:
     restart: always
     profiles:
       - "hello-service"
+    depends_on:
+      - jenkins
   jenkins:
     image: jenkins/jenkins
     ports:
@@ -16,6 +18,7 @@ services:
       - 50000:50000
     restart: on-failure
     volumes:
+      - jenkins_data:/var/jenkins_home
       - /usr/libexec/docker/cli-plugins/docker-compose:/usr/libexec/docker/cli-plugins/docker-compose
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker
@@ -140,3 +143,5 @@ services:
       driver: loki
       options:
         loki-url: "http://loki:3100/loki/api/v1/push"
+volumes:
+  jenkins_data:
